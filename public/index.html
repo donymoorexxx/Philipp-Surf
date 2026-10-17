@@ -271,7 +271,7 @@ rd.setPixelRatio(Math.min(devicePixelRatio||1,2));
 const sc=new T.Scene(),cam=new T.PerspectiveCamera(70,1,.1,80);
 sc.background=new T.Color(0x0b0f24);sc.fog=new T.Fog(0x0b0f24,16,54);
 sc.add(new T.AmbientLight(0xc8cce6,.95));const dl=new T.DirectionalLight(0xffffff,.55);dl.position.set(1.5,4,3);sc.add(dl);
-const ld=new T.TextureLoader(),tx=(f,rx,ry,mir)=>{const t=ld.load('t/'+f);if(rx){t.wrapS=t.wrapT=mir?T.MirroredRepeatWrapping:T.RepeatWrapping;t.repeat.set(rx,ry)}t.anisotropy=4;return t};
+const ld=new T.TextureLoader(),tx=(f,rx,ry,mir)=>{const t=ld.load('tex/'+f);if(rx){t.wrapS=t.wrapT=mir?T.MirroredRepeatWrapping:T.RepeatWrapping;t.repeat.set(rx,ry)}t.anisotropy=4;return t};
 const mats={},geos={};
 const M=(c,o)=>{const k=c+JSON.stringify(o||0);return mats[k]||(mats[k]=new T.MeshLambertMaterial(Object.assign({color:c},o||{})))},LM=o=>new T.MeshLambertMaterial(o);
 const gb=(w,h,d)=>geos['b'+w+','+h+','+d]||(geos['b'+w+','+h+','+d]=new T.BoxGeometry(w,h,d)),gc=(r,h)=>geos['c'+r+','+h]||(geos['c'+r+','+h]=new T.CylinderGeometry(r,r,h,10)),gs=r=>geos['s'+r]||(geos['s'+r]=new T.SphereGeometry(r,12,10)),gp=(w,h)=>geos['p'+w+','+h]||(geos['p'+w+','+h]=new T.PlaneGeometry(w,h));
@@ -320,7 +320,7 @@ else if(o.type==='bonus'){const col=BON[o.kind][1],s=Sp(g,.3,LM({color:col,emiss
 else{MK[o.kind](g);if(o.type==='wall'&&o.kind==='boss')g.position.x=0}
 return g}
 // персонажи
-const hs=ld.load('t/head_s.jpg'),ht=ld.load('t/head_t.jpg');
+const hs=ld.load('tex/head_s.jpg'),ht=ld.load('tex/head_t.jpg');
 function rig(p,map,col){const g=new T.Group(),R={g},top=p?fab:M(0x6f7580),pants=p?den:M(0x4a4f58),shoe=M(p?0x6b705f:0x1e1e22),skin=M(0xf1c7a0),body=new T.Group();g.add(body);R.body=body;
 R.legs=[-1,1].map(s=>{const l=new T.Group();l.position.set(s*.13,.68,0);Bx(l,.19,.62,pants,0,-.62,0);Bx(l,.21,.1,shoe,0,-.7,-.05);body.add(l);return l});
 Bx(body,.54,.5,.3,top,0,.66,0);if(p)Bx(body,.4,.46,.2,0x2b3a67,0,.7,.23);else{Bx(body,.08,.32,.02,0x4a4f8a,0,.72,-.16);Bx(body,.3,.06,.3,0xffffff,0,1.12,0)}
