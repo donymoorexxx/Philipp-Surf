@@ -17,7 +17,29 @@ canvas{position:fixed;inset:0;width:100%;height:100%;display:block}#gl,#c{z-inde
 #mpbar{position:fixed;top:calc(env(safe-area-inset-top,0) + 60px);left:50%;transform:translateX(-50%);font-size:12px;font-weight:800;background:rgba(0,0,0,.45);border-radius:10px;padding:5px 10px;pointer-events:none;min-width:110px}#mpbar .me{color:#ffd23f}input{font-family:inherit}
 #bSnd{position:fixed;right:12px;top:calc(env(safe-area-inset-top,0) + 62px);width:40px;height:40px;border-radius:20px;background:rgba(0,0,0,.4);font-size:18px;padding:0;box-shadow:none;color:#fff}
 .screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;gap:12px;padding:calc(env(safe-area-inset-top,0) + 3vh) 24px 24px;text-align:center}
-#menu{background:linear-gradient(#0d1230ee,#0d123099 55%,transparent)}
+#menu{display:block;padding:0;background:linear-gradient(#0d1230cc,transparent 20%,transparent 68%,#0d1230dd);text-align:left}
+#menu>*{position:absolute}
+.mtop{top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;right:12px;display:flex;justify-content:space-between;align-items:center}
+.cur{background:#24324f;border:3px solid #3b4d78;border-radius:16px;padding:5px 6px 5px 12px;font-weight:900;font-size:20px;display:flex;gap:8px;align-items:center}
+.plus{background:#3bb94a;border-radius:10px;padding:0 10px;font-size:22px;line-height:28px}
+.gear{width:46px;height:46px;border-radius:23px;padding:0;font-size:26px;background:rgba(0,0,0,.35);box-shadow:none}
+.gtitle{top:calc(env(safe-area-inset-top,0px) + 32vh);left:0;right:0;text-align:center;font-size:54px;font-weight:900;font-style:italic;line-height:.9;color:#b6ff3b;text-shadow:0 4px 0 #3c6b00,0 8px 14px rgba(0,0,0,.5);transform:rotate(-4deg)}
+.gtitle em{display:block;font-size:26px;color:#fff;text-shadow:0 3px 0 #c4202a;margin-top:6px}
+.mleft{left:12px;top:calc(env(safe-area-inset-top,0px) + 74px);width:44%;display:flex;flex-direction:column;gap:12px}
+.mright{right:12px;top:calc(env(safe-area-inset-top,0px) + 74px);width:38%}
+.hs{display:flex;gap:10px;align-items:center;background:rgba(45,45,80,.65);border:3px solid #8a8fff;border-radius:16px;padding:6px;font-size:13px;font-weight:800}
+.hs b{display:block;font-size:22px}.hs small{opacity:.8}
+.av{width:54px;height:54px;border-radius:12px;border:3px solid #fff;background:#334 url(tex/face_s.jpg) center/cover}
+.tile{position:relative;width:100%;min-height:78px;border-radius:16px;border:3px solid #fff;padding:8px 10px;text-align:left;font-size:16px;line-height:1.05;color:#fff;box-shadow:0 5px 0 rgba(0,0,0,.35);font-style:italic}
+.tile i{position:absolute;right:8px;bottom:4px;font-size:34px;font-style:normal}.tile small{display:block;font-size:12px;font-weight:700;margin-top:4px}
+.tile.gold{background:linear-gradient(#ffd23a,#f29a00);color:#4a2600;min-height:90px}.tile.grn{background:linear-gradient(#35d172,#12843f)}
+.tap{left:20px;bottom:calc(env(safe-area-inset-bottom,0px) + 130px);background:none;box-shadow:none;padding:0;font-size:34px;font-style:italic;color:#fff;text-shadow:0 4px 0 rgba(0,0,0,.45),0 0 12px rgba(0,0,0,.4);transform:rotate(-4deg);animation:pulse 1.4s infinite}
+@keyframes pulse{50%{transform:rotate(-4deg) scale(1.06)}}
+.mbot{left:10px;right:10px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);display:flex;gap:8px}
+.nb{position:relative;flex:1;height:84px;padding:6px 2px 0;border-radius:14px;background:linear-gradient(#3a8be8,#1f5fc4);border:3px solid #cfe3ff;box-shadow:0 5px 0 #123c82;font-size:11px;font-style:italic;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.nb i{font-size:28px;font-style:normal}
+.bd{position:absolute;top:-12px;right:-6px;background:#e8383d;border:3px solid #fff;border-radius:50%;min-width:28px;height:28px;font-size:15px;display:flex;align-items:center;justify-content:center;font-style:normal}
+
 #over,#panel{justify-content:center;background:rgba(8,10,30,.8);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);padding-top:24px}
 .hidden{display:none!important}
 .logo{font-size:60px;font-weight:900;line-height:.9;letter-spacing:-2px;color:var(--gold);text-shadow:0 4px 0 #b86e00,0 8px 18px rgba(0,0,0,.5);transform:rotate(-3deg)}
@@ -35,13 +57,13 @@ button:active{transform:translateY(4px);box-shadow:0 1px 0 #1e3f9c}
 <div class="hud hidden" id="hud"><div><span id="sc">0</span> м<small>рекорд <span id="bs">0</span></small><small id="lv">❤️❤️</small></div><div class="r">📘 <span id="cd">0</span><small>зачётки</small></div></div>
 <div id="bons"></div><div id="mpbar" class="hidden"></div><button id="bSnd" class="hidden">🔊</button>
 <div class="screen" id="menu">
-<div class="logo">ПОБЕГ<em>от Мательского</em></div>
-<div class="bal">📘 <b id="mC">0</b> зачёток · рекорд <b id="mB">0</b> м</div>
-<button class="big" id="bPlay">▶ Играть</button>
-<div class="row"><button data-p="mp" style="background:linear-gradient(#27c46b,#13803f);box-shadow:0 5px 0 #0b5228">👥 Мультиплеер</button></div>
-<div class="row"><button class="ses" id="bSes">🔥 Сессия</button><button data-p="q">📋 Задания</button></div>
-<div class="row"><button data-p="ach">🏅 Достижения</button><button data-p="top">🏆 Лидеры</button></div>
-<div class="row"><button data-p="shop">🛒 Магазин</button><button data-p="set">⚙️ Настройки</button></div>
+<div class="mtop"><div class="cur">📘 <b id="mC">0</b><span class="plus">+</span></div><button class="gear" data-p="set">⚙️</button></div>
+<div class="gtitle">ПОБЕГ<em>от Мательского</em></div>
+<div class="mleft"><div class="hs"><div class="av"></div><div><small>Рекорд</small><b><span id="mB">0</span> м</b></div></div>
+<button class="tile grn" data-p="mp"><span>МУЛЬТИ-<br>ПЛЕЕР</span><i>👥</i></button></div>
+<div class="mright"><button class="tile gold" id="bSes"><span>СЕССИЯ</span><small>×2 зачётки</small><i>🔥</i></button></div>
+<button class="tap" id="bPlay">Нажми, чтобы играть</button>
+<div class="mbot"><button class="nb" data-p="q"><i>📋</i>ЗАДАНИЯ<b class="bd" id="qb">0</b></button><button class="nb" data-p="ach"><i>🏅</i>НАГРАДЫ</button><button class="nb" data-p="shop"><i>🛒</i>МАГАЗИН</button><button class="nb" data-p="top"><i>🏆</i>ЛИДЕРЫ</button></div>
 </div>
 <div class="screen hidden" id="panel"><div class="card"><h2 id="pT"></h2><div id="pB" style="display:flex;flex-direction:column;gap:10px"></div><button id="pX">Назад</button></div></div>
 <div class="screen hidden" id="over"><h1 id="oH">Догнал!</h1>
@@ -90,7 +112,7 @@ const JD=.7,SD=.7;let hits=0,rs,cd=.2,hb=0,mode=0,tmr=0,lastSay=0;
 function reset(){hits=0;rs={d:0,h:0,b:0};cd=.2;hb=0;dist=0;speed=mode?19:14;run=0;lane=0;laneX=0;jumpT=-1;slideT=-1;close=.2;inv=0;shake=0;flash=0;objs=[];nextRow=20;loc=0;bon={mag:0,dash:0,x2:0};$('cd').textContent=0;$('sc').textContent=0}
 reset();
 function setUI(){const p=st==='play';$('hud').classList.toggle('hidden',!p);$('bSnd').classList.toggle('hidden',!p);$('mpbar').classList.toggle('hidden',!(p&&mpOn));$('menu').classList.toggle('hidden',st!=='menu');$('over').classList.toggle('hidden',st!=='over');if(!p)$('bons').innerHTML=''}
-function ui(){$('mC').textContent=S.cards;$('mB').textContent=S.best;$('bs').textContent=S.best;$('bSnd').textContent=S.sound?'🔊':'🔇'}
+function ui(){try{const n=quests().l.filter(x=>!x.ok).length;$('qb').textContent=n;$('qb').style.display=n?'flex':'none'}catch(e){}$('mC').textContent=S.cards;$('mB').textContent=S.best;$('bs').textContent=S.best;$('bSnd').textContent=S.sound?'🔊':'🔇'}
 // ---- уровень ----
 let ws,ghosts={},names={},myId='',rr=Math.random,mpOn=0,pt=0,lob=null;const rnd=(a,b)=>a+rr()*(b-a);
 function spawnRow(w){
@@ -147,13 +169,14 @@ document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)r
 if(d.p)panel(d.p);else if(d.n)mpAct(d.n);else if(d.t){S[d.t]=S[d.t]?0:1;save();ui();panel(cur);if(S.sound)sfx.card()}
 else if(b.id==='pX')$('panel').classList.add('hidden');else if(b.id==='bPlay')start(0);else if(b.id==='bSes')start(1);else if(b.id==='bAgain'){if(mpOn){toMenu();panel('mp')}else start(mode)}else if(b.id==='bMenu')toMenu();
 else if(b.id==='bSnd'){S.sound=S.sound?0:1;save();ui()}});
+$('menu').addEventListener('click',e=>{if(e.target.id==='menu'){ac();start(0)}});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)save()});
 // ---- задания, достижения, голос ----
 function quests(){const d=new Date().toISOString().slice(0,10);if(!S.q||S.q.d!==d){const n=Math.floor(Date.now()/864e5)%3;S.q={d,l:[{id:'c',t:'Собрать зачёток',g:[40,60,80][n],p:0,r:30},{id:'m',t:'Пробежать за один забег (м)',g:[500,700,900][n],p:0,r:40},{id:'b',t:'Подобрать бонусов',g:[3,4,5][n],p:0,r:20}]};save()}return S.q}
 function qadd(id,v,mx){const q=quests().l.find(x=>x.id===id);if(!q||q.ok)return;q.p=mx?Math.max(q.p,v):q.p+v;if(q.p>=q.g){q.ok=1;S.cards+=q.r;toast=2.4;toastT='Задание! +'+q.r+' зачёток';sfx.bonus();dirty=1}}
 const ACH=[['first','Первый забег','Сыграть один забег',()=>S.runs>=1],['d500','Без единого удара','500 м без ударов',()=>rs.d>=500&&rs.h===0],['d1000','Марафонец','1000 м за один забег',()=>rs.d>=1000],['d1200','Три локации','Добежать до спортзала',()=>rs.d>=1200],['c100','Отличник','Собрать 100 зачёток',()=>S.tot>=100],['boss','Пережил зав. отделения','Увернуться от зав. отделения',()=>rs.b>=1]];
 function chk(){ACH.forEach(a=>{if(!S.ach[a[0]]&&a[3]()){S.ach[a[0]]=1;toast=2.4;toastT='Достижение: '+a[1];sfx.bonus();dirty=1}})}
-function say(s){if(!S.sound||time-lastSay<4||!window.speechSynthesis)return;lastSay=time;try{const u=new SpeechSynthesisUtterance(s);u.lang='ru-RU';u.pitch=.5;u.rate=1.05;speechSynthesis.speak(u)}catch(e){}}
+function say(){}
 // ---- игровая логика ----
 function hurt(o){if(inv>0)return;o.hit=1;rs.h++;say(['Стой!','Где курсовая?','Ко мне в кабинет!','Опять опоздал?'][Math.random()*4|0]);
 hits++;close=hits>=2?1:.65;shake=.3;flash=.35;sfx.hit();buzzErr();if(hits>=2)gameOver()}
@@ -341,12 +364,12 @@ for(const o of objs){if(!o.m){o.m=mk(o);objRoot.add(o.m)}const m=o.m,z=-(o.w-dis
 if(o.type==='card'){m.rotation.y=time*3+o.w;m.position.y=Math.sin(time*5+o.w)*.04}else if(o.type==='bonus'){const p=1+Math.sin(time*6)*.08;m.scale.set(p,p,p)}else if(m.userData.tick)m.userData.tick(time)}
 for(let i=objRoot.children.length-1;i>=0;i--)if(objRoot.children[i].userData.seen!==glf)objRoot.remove(objRoot.children[i]);
 const jh=jumpT>=0?Math.sin(Math.PI*jumpT/JD):0;
-plr.g.position.set(laneX,jh*1.3,0);pose(plr,time*14,slideT>=0?'s':jumpT>=0?'j':'r');
+const mn=st==='menu';plr.g.position.set(laneX,jh*1.3,0);plr.g.rotation.y=mn?Math.PI:0;tch.g.visible=!mn;pose(plr,mn?time*4:time*14,slideT>=0?'s':jumpT>=0?'j':'r');
 chW+=(laneX-chW)*Math.min(1,gdt*5);tch.g.position.set(chW,0,2-cd*.5);pose(tch,time*9,'r',1);
 GLR.labels=[];const seen={};
 if(mpOn)for(const id in ghosts){if(id===myId)continue;const q=ghosts[id],z=-(q.d-dist);if(z>2.5||z<-50)continue;seen[id]=1;let r=gr[id];if(!r){const c=new T.Color().setHSL((id.split('').reduce((a,b)=>a+b.charCodeAt(0),0)*47%360)/360,.7,.55);r=gr[id]=rig(true,null,c.getHex())}r.g.visible=true;r.g.position.set(q.l,(q.j||0)*1.3,z);pose(r,time*14,q.j?'j':'r');GLR.labels.push({n:names[id]||'?',x:q.l,y:1.9,z})}
 for(const id in gr)if(!seen[id])gr[id].g.visible=false;
-const sh=shake>0?.2:0;cam.position.set(laneX*.55+(Math.random()-.5)*sh,3.5+(Math.random()-.5)*sh,5);cam.lookAt(laneX*.3,1.1,-6);
+const sh=shake>0?.2:0;cam.position.set(laneX*.55+(Math.random()-.5)*sh,3.5+(Math.random()-.5)*sh,5);if(mn){cam.position.set(.35,1.35,2.7);cam.lookAt(0,.95,0)}else cam.lookAt(laneX*.3,1.1,-6);
 rd.render(sc,cam);
 GLR.labels.forEach(l=>{const v=new T.Vector3(l.x,l.y,l.z).project(cam);l.sx=(v.x+1)/2*W;l.sy=(1-v.y)/2*H})};
 GLok=1}catch(e){GLok=0;console.log('3D off',e)}}
@@ -360,7 +383,7 @@ function draw(){if(GLok){GLR.render();overlay()}else draw2d()}
 // ---- цикл ----
 let last=performance.now(),sv=0;
 function loop(ts){requestAnimationFrame(loop);const dt=Math.min((ts-last)/1000,.05);last=ts;gdt=dt;time+=dt;
-cd+=(close-cd)*Math.min(1,dt*3);if(st==='play')update(dt);else if(st==='menu')dist+=7*dt;
+cd+=(close-cd)*Math.min(1,dt*3);if(st==='play')update(dt);
 if(dirty&&(sv+=dt)>2.5){save();dirty=0;sv=0}
 draw()}
 initGL();ui();setUI();requestAnimationFrame(loop);
