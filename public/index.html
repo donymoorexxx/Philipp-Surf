@@ -283,7 +283,7 @@ const Pl=(g,w,h,m,x,y,z,rx,ry)=>{const o=new T.Mesh(gp(w,h),mt(m));o.position.se
 const cv2=(w,h,f)=>{const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');f(x);return new T.CanvasTexture(c)};
 // текстуры из ваших фото
 const LT=(f,rx,ry,mir,fb)=>{const m=LM({color:fb});ld.load('tex/'+f,t=>{if(rx){t.wrapS=t.wrapT=mir?T.MirroredRepeatWrapping:T.RepeatWrapping;t.repeat.set(rx,ry)}t.anisotropy=4;m.map=t;m.color.setHex(0xffffff);m.needsUpdate=true});return m};
-const wallM=LT('wall.jpg',3,3,1,0xc9a89a),floorM=LT('floor.jpg',3,4,1,0x707078),doorM=LT('door.jpg',0,0,0,0x2a3330),cabM=LT('cabinet.jpg',0,0,0,0xa03a2a),winM=new T.MeshBasicMaterial({map:tx('window.jpg'),color:0x8a97b8}),woodM=LT('wood.jpg',1,1,0,0x6b5a34),
+const wallM=LT('wall.jpg',3,3,1,0xc9a89a),floorM=LT('floor.jpg',3,4,1,0x707078),doorM=LT('door.jpg',0,0,0,0x2a3330),cabM=LT('cabinet.jpg',0,0,0,0xa03a2a),winM=new T.MeshBasicMaterial({map:tx('window.jpg'),color:0x8a97b8}),woodM=LT('wood.jpg',1,1,0,0x6b5a34),radM=LT('radiator.jpg',0,0,0,0xa89878),
 fab=M(0x9a9ca2),den=M(0x86a9d4),ceilM=M(0x9d968a),baseM=M(0x7a2f17),lampM=new T.MeshBasicMaterial({color:0xfff6dd}),
 glow=cv2(64,64,x=>{const g=x.createRadialGradient(32,32,2,32,32,32);g.addColorStop(0,'rgba(255,240,200,.9)');g.addColorStop(1,'rgba(255,240,200,0)');x.fillStyle=g;x.fillRect(0,0,64,64)}),
 poolM=new T.MeshBasicMaterial({map:glow,transparent:true,blending:T.AdditiveBlending,depthWrite:false,opacity:.45});
@@ -293,8 +293,8 @@ for(let i=0;i<NS;i++){const g=new T.Group(),d={};
 Pl(g,2*HWD,SEG,floorM,0,0,-SEG/2,-Math.PI/2);Pl(g,2*HWD,SEG,ceilM,0,CH,-SEG/2,Math.PI/2);
 for(const s of[-1,1]){const r=-s*Math.PI/2,xw=s*HWD;
 Pl(g,SEG,CH,wallM,xw,CH/2,-SEG/2,0,r);Bx(g,.05,.45,SEG,baseM,s*(HWD-.025),0,-SEG/2);Bx(g,.07,.07,SEG,0xcfcfc8,s*(HWD-.035),CH-.4,-SEG/2);
-d[s]={door:Pl(g,1.1,2.2,doorM,xw-s*.01,1.1,-SEG/2,0,r),win:Pl(g,1.8,1.8,winM,xw-s*.01,2.2,-SEG/2,0,r),rad:Bx(g,.12,.7,1.3,0xd8d2c0,s*(HWD-.06),.2,-SEG/2),cab:new T.Group()};
-Bx(d[s].cab,.3,1.7,.9,0xcfc9bd,s*(HWD-.15),.15,-SEG/2);Pl(d[s].cab,.89,1.7,cabM,s*(HWD-.31),1,-SEG/2,0,r);g.add(d[s].cab)}
+d[s]={door:Pl(g,1.1,2.2,doorM,xw-s*.01,1.1,-SEG/2,0,r),win:Pl(g,1.8,1.8,winM,xw-s*.01,2.2,-SEG/2,0,r),rad:(()=>{const q=new T.Group();Bx(q,.12,.5,1.3,0xa89878,s*(HWD-.06),.2,-SEG/2);Pl(q,1.3,.5,radM,s*(HWD-.121),.45,-SEG/2,0,r);g.add(q);return q})(),cab:new T.Group()};
+Bx(d[s].cab,.3,1.7,.9,0x9a2a1e,s*(HWD-.15),.15,-SEG/2);Pl(d[s].cab,.89,1.7,cabM,s*(HWD-.31),1,-SEG/2,0,r);g.add(d[s].cab)}
 d.lamp=Bx(g,.22,.08,2.4,lampM,0,CH-.08,-SEG/2);d.pool=Pl(g,2.8,3.4,poolM,0,.02,-SEG/2,-Math.PI/2);g.userData=d;sc.add(g);segs.push(g)}
 // карточки, бонусы
 const ct=cv2(128,170,x=>{x.fillStyle='#1f63d8';x.fillRect(0,0,128,170);x.fillStyle='#2d7bff';x.fillRect(14,16,100,138);x.fillStyle='#ffd23f';x.beginPath();for(let k=0;k<10;k++){const r=k%2?14:34,a=-1.5708+k*.6283;x.lineTo(70+Math.cos(a)*r,85+Math.sin(a)*r)}x.fill();x.fillStyle='rgba(255,255,255,.25)';x.beginPath();x.moveTo(20,0);x.lineTo(60,0);x.lineTo(20,170);x.lineTo(0,170);x.fill()}),
@@ -321,9 +321,9 @@ else if(o.type==='bonus'){const col=BON[o.kind][1],s=Sp(g,.3,LM({color:col,emiss
 else{MK[o.kind](g);if(o.type==='wall'&&o.kind==='boss')g.position.x=0}
 return g}
 // персонажи
-function rig(p,map,col){const hm=LM({color:col||0xd9b28c});if(map)ld.load('tex/'+map,t=>{hm.map=t;hm.color.setHex(0xffffff);hm.needsUpdate=true});const g=new T.Group(),R={g},top=p?fab:M(0x6f7580),pants=p?den:M(0x4a4f58),shoe=M(p?0x6b705f:0x1e1e22),skin=M(0xf1c7a0),body=new T.Group();g.add(body);R.body=body;
-R.legs=[-1,1].map(s=>{const l=new T.Group();l.position.set(s*.13,.68,0);Bx(l,.19,.62,pants,0,-.62,0);Bx(l,.21,.1,shoe,0,-.7,-.05);body.add(l);return l});
-Bx(body,.54,.5,.3,top,0,.66,0);if(p)Bx(body,.4,.46,.2,0x2b3a67,0,.7,.23);else{Bx(body,.08,.32,.02,0x4a4f8a,0,.72,-.16);Bx(body,.3,.06,.3,0xffffff,0,1.12,0)}
+function rig(p,map,col){if(!window.BM){window.BM=[0,1,2,3,4,5].map(()=>LM({color:0x9a9ca2}));const R6=[[0,0,256,256],[256,0,256,256],[512,0,128,360],[640,0,128,360],[768,0,128,360],[896,0,128,360]];ld.load('tex/body.jpg',t=>{const im=t.image;BM.forEach((m,i)=>{const r=R6[i],c=document.createElement('canvas');c.width=r[2];c.height=r[3];c.getContext('2d').drawImage(im,r[0],r[1],r[2],r[3],0,0,r[2],r[3]);m.map=new T.CanvasTexture(c);m.color.setHex(0xffffff);m.needsUpdate=true})})}const hm=LM({color:col||0xd9b28c});if(map)ld.load('tex/'+map,t=>{hm.map=t;hm.color.setHex(0xffffff);hm.needsUpdate=true});const g=new T.Group(),R={g},top=p?fab:M(0x6f7580),pants=p?den:M(0x4a4f58),shoe=M(p?0x6b705f:0x1e1e22),skin=M(0xf1c7a0),body=new T.Group();g.add(body);R.body=body;
+R.legs=[-1,1].map(s=>{const l=new T.Group();l.position.set(s*.13,.68,0);Bx(l,.19,.62,.18,p?[M(0x86a9d4),M(0x86a9d4),M(0x86a9d4),M(0x86a9d4),BM[s>0?5:4],BM[s>0?3:2]]:pants,0,-.62,0);Bx(l,.21,.1,.32,shoe,0,-.7,-.05);body.add(l);return l});
+Bx(body,.54,.5,.3,p?[M(0x9a9ca2),M(0x9a9ca2),M(0x9a9ca2),M(0x9a9ca2),BM[1],BM[0]]:top,0,.66,0);if(!p){Bx(body,.08,.32,.02,0x4a4f8a,0,.72,-.16);Bx(body,.3,.06,.3,0xffffff,0,1.12,0)}
 R.arms=[-1,1].map(s=>{const a=new T.Group();a.position.set(s*.34,1.12,0);Bx(a,.14,.52,.15,top,0,-.5,0);Sp(a,.075,skin,0,-.56,0);body.add(a);return a});
 Cy(body,.07,.12,skin,0,1.12,0);const h=new T.Mesh(gs(.21),hm);h.scale.set(1,1.12,1.05);h.position.set(0,1.34,0);body.add(h);sc.add(g);return R}
 function pose(R,ph,mode,T2){const sw=Math.sin(ph);if(mode==='s'){R.body.rotation.x=-.45;R.body.scale.y=.55;R.body.position.y=0;R.legs.forEach(l=>l.rotation.x=.6);R.arms.forEach(a=>a.rotation.x=-.9)}else{R.body.scale.y=1;R.body.rotation.x=0;R.body.position.y=Math.abs(sw)*.06;const A=mode==='j'?.3:.85;R.legs[0].rotation.x=sw*A;R.legs[1].rotation.x=-sw*A;R.arms[0].rotation.x=-sw*A;R.arms[1].rotation.x=T2?2.5+Math.sin(ph*.5)*.15:sw*A}}
