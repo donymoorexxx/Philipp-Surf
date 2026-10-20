@@ -4,7 +4,6 @@
 <title>Побег от Мательского</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <style>
 :root{--ink:#0d1230;--gold:#ffc83d}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -368,8 +367,15 @@ const plr=rig(true,'head_s.jpg'),tch=rig(false,'head_t.jpg');tch.g.scale.set(1.0
 // --- ваши 3D-модели (.glb) с автоматическим скелетом ---
 const MP={student:{url:'models/student.glb',hip:-.10,knee:-.30,sh:.32,elb:.12,ax:.115,arm:.12,H:1.6},robe:{url:'models/student_robe.glb',hip:-.18,knee:-.32,sh:.32,elb:.10,ax:.13,arm:0,H:1.6},teacher:{url:'models/teacher.glb',hip:-.10,knee:-.30,sh:.32,elb:.10,ax:.125,arm:.3,H:1.72}},NEW={};
 const ss=(a,b,v)=>{const q=Math.min(1,Math.max(0,(v-a)/(b-a)));return q*q*(3-2*q)};
-function buildChar(key){try{new T.GLTFLoader().load(MP[key].url,gl=>{try{let mesh;gl.scene.traverse(o=>{if(o.isMesh&&!mesh)mesh=o});if(!mesh)return;
-const p=MP[key],geo=mesh.geometry.clone(),pos=geo.attributes.position,n=pos.count,si=new Uint16Array(n*4),sw=new Float32Array(n*4);
+async function loadGLB(url){const r=await fetch(url);if(!r.ok)throw new Error('HTTP '+r.status);const buf=await r.arrayBuffer(),dv=new DataView(buf);if(dv.getUint32(0,true)!==0x46546C67)throw new Error('не glb');let off=12,js,bin;
+while(off<buf.byteLength){const cl=dv.getUint32(off,true),ct=dv.getUint32(off+4,true);if(ct===0x4E4F534A)js=JSON.parse(new TextDecoder().decode(new Uint8Array(buf,off+8,cl)));else if(ct===0x004E4942)bin=buf.slice(off+8,off+8+cl);off+=8+cl}
+const pr=js.meshes[0].primitives[0],A=js.accessors,B=js.bufferViews,get=(i,C,k)=>{const a=A[i],v=B[a.bufferView];return new C(bin,(v.byteOffset||0)+(a.byteOffset||0),a.count*k)};
+const pos=get(pr.attributes.POSITION,Float32Array,3),uv=get(pr.attributes.TEXCOORD_0,Float32Array,2),idx=get(pr.indices,A[pr.indices].componentType===5125?Uint32Array:Uint16Array,1),iv=B[js.images[0].bufferView];
+const url2=URL.createObjectURL(new Blob([new Uint8Array(bin,iv.byteOffset||0,iv.byteLength)],{type:js.images[0].mimeType||'image/jpeg'})),tex=new T.TextureLoader().load(url2);tex.flipY=false;
+const geo=new T.BufferGeometry();geo.setAttribute('position',new T.BufferAttribute(pos,3));geo.setAttribute('uv',new T.BufferAttribute(uv,2));geo.setIndex(new T.BufferAttribute(idx,1));return{geo,tex}}
+GLR.ms={};
+function buildChar(key){loadGLB(MP[key].url).then(({geo,tex})=>{
+const p=MP[key],pos=geo.attributes.position,n=pos.count,si=new Uint16Array(n*4),sw=new Float32Array(n*4);
 for(let i=0;i<n;i++){const x=pos.getX(i),y=pos.getY(i),ox=ss(p.ax-.015,p.ax+.015,Math.abs(x)),aw=(1-ss(p.sh-.06,p.sh+.02,y))*ox*ss(p.hip-.14,p.hip-.06,y),lw=(1-ss(p.hip-.07,p.hip+.03,y))*(1-aw),low=1-ss(p.knee-.04,p.knee+.04,y),el=1-ss(p.elb-.04,p.elb+.04,y),side=low>.001?(x<0?0:1):ss(-.015,.015,x),L=[[0,1-lw-aw]];
 L.push([1,lw*(1-side)*(1-low)],[3,lw*side*(1-low)],[2,lw*(1-side)*low],[4,lw*side*low]);
 if(x<0)L.push([5,aw*(1-el)],[6,aw*el]);else L.push([7,aw*(1-el)],[8,aw*el]);
@@ -378,16 +384,15 @@ geo.setAttribute('skinIndex',new T.Uint16BufferAttribute(si,4));geo.setAttribute
 const bn=()=>new T.Bone(),root=bn(),lAu=bn(),lAl=bn(),lBu=bn(),lBl=bn(),aAu=bn(),aAl=bn(),aBu=bn(),aBl=bn();
 lAu.position.set(0,p.hip,0);lBu.position.set(0,p.hip,0);lAl.position.set(0,p.knee-p.hip,0);lBl.position.set(0,p.knee-p.hip,0);aAu.position.set(0,p.sh,0);aBu.position.set(0,p.sh,0);aAl.position.set(0,p.elb-p.sh,0);aBl.position.set(0,p.elb-p.sh,0);
 lAu.add(lAl);lBu.add(lBl);aAu.add(aAl);aBu.add(aBl);root.add(lAu,lBu,aAu,aBu);
-const tex=mesh.material.map;if(tex)tex.encoding=T.LinearEncoding;
 const sm=new T.SkinnedMesh(geo,new T.MeshLambertMaterial({map:tex,skinning:true,side:T.DoubleSide}));sm.add(root);sm.frustumCulled=false;sm.updateMatrixWorld(true);sm.bind(new T.Skeleton([root,lAu,lAl,lBu,lBl,aAu,aAl,aBu,aBl]));
 const inner=new T.Group(),g=new T.Group();inner.rotation.y=Math.PI;inner.scale.setScalar(p.H);inner.position.y=.5*p.H;inner.add(sm);g.add(inner);g.visible=false;sc.add(g);
-NEW[key]={g,inner,p,b:{root,legA:lAu,kneeA:lAl,legB:lBu,kneeB:lBl,armA:aAu,elbA:aAl,armB:aBu,elbB:aBl}}}catch(e){console.log('char',key,e)}})}catch(e){console.log('loader',e)}}
+NEW[key]={g,inner,p,b:{root,legA:lAu,kneeA:lAl,legB:lBu,kneeB:lBl,armA:aAu,elbA:aAl,armB:aBu,elbB:aBl}};GLR.ms[key]=1}).catch(e=>{GLR.ms[key]=String(e&&e.message||e).slice(0,30);console.log('char',key,e)})}
 function poseN(R,ph,mode,isT){const b=R.b,sw=Math.sin(ph),a=R.p.arm;let lA=.5*sw,lB=-.5*sw,kA=Math.max(0,lA)*1.1+.1,kB=Math.max(0,lB)*1.1+.1,aA=-sw*a,aB=sw*a,eA=-a*.8,eB=-a*.8,lean=.08,bob=Math.abs(sw)*.015,sy=1;
 if(mode==='s'){sy=.6;lA=lB=-.5;kA=kB=.9;aA=aB=-.3;eA=eB=-.3;lean=.25;bob=0}else if(mode==='j'){lA=-.5;lB=.3;kA=.8;kB=.2;aA=aB=-.3;eA=eB=-.2;lean=.05;bob=0}
 if(isT){aB=-1.2;eB=-.3;lA*=.8;lB*=.8}
 b.legA.rotation.x=lA;b.legB.rotation.x=lB;b.kneeA.rotation.x=kA;b.kneeB.rotation.x=kB;b.armA.rotation.x=aA;b.armB.rotation.x=aB;b.elbA.rotation.x=eA;b.elbB.rotation.x=eB;b.root.rotation.x=lean;b.root.position.y=bob;
 R.inner.scale.set(R.p.H,R.p.H*sy,R.p.H);R.inner.position.y=.5*R.p.H*sy}
-if(T.GLTFLoader){buildChar('student');buildChar('robe');buildChar('teacher')}
+buildChar('student');buildChar('robe');buildChar('teacher');
 const brd=new T.Group();Bx(brd,.68,.06,.9,0xf5f0dc,0,.04,0);Bx(brd,.76,.04,.98,0x1f63d8,0,.1,0);Bx(brd,.76,.04,.98,0x0f3b96,0,0,0);Bx(brd,.06,.14,.98,0x0f3b96,-.38,0,0);Pl(brd,.42,.42,new T.MeshBasicMaterial({map:ct}),0,.121,0,-Math.PI/2);brd.visible=false;sc.add(brd);
 const objRoot=new T.Group();sc.add(objRoot);let chW=0,locS=-1;const gr={};
 const TINT=[[0xffffff,0xffffff,0x0b0f24],[0xffd2a0,0xf4e6c8,0x1a0f1c],[0xb8e6c8,0xe0a860,0x08201c]];
@@ -415,7 +420,7 @@ function drawToast(){if(toast<=0)return;ctx.save();ctx.globalAlpha=Math.min(1,to
 function overlay(){ctx.clearRect(0,0,W,H);
 if(bon.dash>0){ctx.fillStyle='rgba(255,230,120,.12)';ctx.fillRect(0,0,W,H)}
 if(flash>0){ctx.fillStyle='rgba(255,60,60,'+flash*1.2+')';ctx.fillRect(0,0,W,H)}
-GLR.labels.forEach(l=>txt(l.n,l.sx,l.sy,14,'#fff'));
+GLR.labels.forEach(l=>txt(l.n,l.sx,l.sy,14,'#fff'));{const bad=Object.entries(GLR.ms||{}).filter(e=>e[1]!==1);if(bad.length)txt('3D-модели: '+bad.map(e=>e[0]+' '+e[1]).join(', '),W/2,H-12,11,'#ffd27a')}
 drawToast()}
 function draw(){if(GLok){GLR.render();overlay()}else draw2d()}
 
