@@ -4,6 +4,7 @@
 <title>Побег от Мательского</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <style>
 :root{--ink:#0d1230;--gold:#ffc83d}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -156,16 +157,17 @@ else if(T==='err')netMsg(m.m)}
 function mpAct(n){net(()=>{if(n==='find'||n==='create')send({t:n});else if(n==='join')send({t:'join',code:$('mpC').value});else if(n==='go')send({t:'go'})})}
 const gh=id=>ghostHeads[id]||(ghostHeads[id]=(()=>{const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d');g.fillStyle='hsl('+(id.split('').reduce((a,b)=>a+b.charCodeAt(0),0)*47%360)+',70%,55%)';g.beginPath();g.arc(32,32,30,0,7);g.fill();g.lineWidth=4;g.strokeStyle='#fff';g.stroke();g.fillStyle='#fff';g.font='bold 34px sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText((names[id]||'?')[0],32,34);c.ok=1;return c})()),ghostHeads={};
 // ---- меню и кнопки ----
-const UP=[['mag','🧲','Мощный магнит','+2 с за уровень',5,[100,200,300,400,500]],['dash','⚡','Долгое ускорение','+1 с за уровень',3,[150,300,450]],['life','❤️','Запасная жизнь','+1 жизнь за уровень',2,[500,1500]]],BSx=[['board','📘','Летающая зачётка','тапни дважды в забеге: зачётка несёт тебя и держит один удар, 20 с',150],['dash','⚡','Рывок на старте','ускорение в начале забега',60],['mag','🧲','Магнит на старте','10 секунд магнита',50]]; 
+const UP=[['mag','🧲','Мощный магнит','+2 с за уровень',5,[100,200,300,400,500]],['dash','⚡','Долгое ускорение','+1 с за уровень',3,[150,300,450]],['life','❤️','Запасная жизнь','+1 жизнь за уровень',2,[500,1500]]],SK=[['robe','🥼','Халат',500]],BSx=[['board','📘','Летающая зачётка','тапни дважды в забеге: зачётка несёт тебя и держит один удар, 20 с',150],['dash','⚡','Рывок на старте','ускорение в начале забега',60],['mag','🧲','Магнит на старте','10 секунд магнита',50]]; 
 let shopTab='u';
 function buy(k){const [ty,id]=k.split(':');if(!S.up)S.up={};if(!S.bs)S.bs={};let p;
 if(ty==='u'){const u=UP.find(x=>x[0]===id),l=up(id);if(!u||l>=u[4])return;p=u[5][l];if(S.cards<p)return;S.cards-=p;S.up[id]=l+1}
+else if(ty==='k'){const s=SK.find(x=>x[0]===id);if(!s)return;if(!S.skO)S.skO={};if(!S.skO[id]){if(S.cards<s[2])return;S.cards-=s[2];S.skO[id]=1;S.skE=id}else S.skE=S.skE===id?'':id}
 else if(ty==='b'){const b=BSx.find(x=>x[0]===id);if(!b)return;p=b[4];if(S.cards<p)return;S.cards-=p;S.bs[id]=(S.bs[id]||0)+1}
 save();ui();sfx.card();panel('shop')}
 const shopHtml=()=>{let h='<div class="tabs">'+[['u','Улучшения'],['b','Бонусы'],['s','Скины']].map(x=>'<button data-tab="'+x[0]+'"'+(shopTab===x[0]?' class="on"':'')+'>'+x[1]+'</button>').join('')+'</div><p class="b">📘 '+S.cards+'</p>';
 if(shopTab==='u')h+=UP.map(u=>{const l=up(u[0]),mx=l>=u[4],p=mx?0:u[5][l];return '<div class="it"><i>'+u[1]+'</i><div><b>'+u[2]+' '+l+'/'+u[4]+'</b><small>'+u[3]+'</small></div>'+(mx?'<span>макс.</span>':'<button data-b="u:'+u[0]+'"'+(S.cards<p?' class="off"':'')+'>'+p+' 📘</button>')+'</div>'}).join('');
 else if(shopTab==='b')h+=BSx.map(b=>'<div class="it"><i>'+b[1]+'</i><div><b>'+b[2]+' ×'+((S.bs&&S.bs[b[0]])||0)+'</b><small>'+b[3]+'</small></div><button data-b="b:'+b[0]+'"'+(S.cards<b[4]?' class="off"':'')+'>'+b[4]+' 📘</button></div>').join('');
-else h+='<p>Скины персонажей скоро: здесь появятся наряды студента и преподавателя.</p>';
+else h+=SK.map(s=>{const ow=S.skO&&S.skO[s[0]],eq=S.skE===s[0];return '<div class="it"><i>'+s[1]+'</i><div><b>'+s[2]+'</b><small>'+(ow?(eq?'надето':'куплено'):'скин студента')+'</small></div><button data-b="k:'+s[0]+'"'+(!ow&&S.cards<s[2]?' class="off"':'')+'>'+(ow?(eq?'Снять':'Надеть'):s[2]+' 📘')+'</button></div>'}).join('')+'<p style="opacity:.7">Новые скины — скоро.</p>';
 return h};
 const PAN={
 mp:['Мультиплеер',()=>'<button data-n="find">⚡ Быстрый поиск</button><button data-n="create">🔒 Создать комнату</button><div class="row"><input id="mpC" placeholder="Код" inputmode="numeric" maxlength="4" style="flex:1;min-width:0;border-radius:12px;border:0;padding:10px;font-size:16px;text-align:center"><button data-n="join">Войти</button></div><div id="mpS" style="opacity:.85"></div><div id="mpL"></div><button id="mpGo" data-n="go" class="hidden">▶ Начать гонку</button><p style="opacity:.7;font-size:13px">Все бегут по одинаковому коридору. Кто дальше — тот и победил.</p>'],
@@ -363,6 +365,29 @@ R.arms=[-1,1].map(s=>{const a=new T.Group();a.position.set(s*.34,1.12,0);Bx(a,.1
 Cy(body,.07,.12,skin,0,1.12,0);const h=new T.Mesh(gs(.21),hm);h.scale.set(1,1.12,1.05);h.position.set(0,1.34,0);body.add(h);sc.add(g);return R}
 function pose(R,ph,mode,T2){const sw=Math.sin(ph);if(mode==='s'){R.body.rotation.x=-.45;R.body.scale.y=.55;R.body.position.y=0;R.legs.forEach(l=>l.rotation.x=.6);R.arms.forEach(a=>a.rotation.x=-.9)}else{R.body.scale.y=1;R.body.rotation.x=0;R.body.position.y=Math.abs(sw)*.06;const A=mode==='j'?.3:.85;R.legs[0].rotation.x=sw*A;R.legs[1].rotation.x=-sw*A;R.arms[0].rotation.x=-sw*A;R.arms[1].rotation.x=T2?2.5+Math.sin(ph*.5)*.15:sw*A}}
 const plr=rig(true,'head_s.jpg'),tch=rig(false,'head_t.jpg');tch.g.scale.set(1.08,1.08,1.08);
+// --- ваши 3D-модели (.glb) с автоматическим скелетом ---
+const MP={student:{url:'models/student.glb',hip:-.10,knee:-.30,sh:.32,elb:.12,ax:.115,arm:.12,H:1.6},robe:{url:'models/student_robe.glb',hip:-.18,knee:-.32,sh:.32,elb:.10,ax:.13,arm:0,H:1.6},teacher:{url:'models/teacher.glb',hip:-.10,knee:-.30,sh:.32,elb:.10,ax:.125,arm:.3,H:1.72}},NEW={};
+const ss=(a,b,v)=>{const q=Math.min(1,Math.max(0,(v-a)/(b-a)));return q*q*(3-2*q)};
+function buildChar(key){try{new T.GLTFLoader().load(MP[key].url,gl=>{try{let mesh;gl.scene.traverse(o=>{if(o.isMesh&&!mesh)mesh=o});if(!mesh)return;
+const p=MP[key],geo=mesh.geometry.clone(),pos=geo.attributes.position,n=pos.count,si=new Uint16Array(n*4),sw=new Float32Array(n*4);
+for(let i=0;i<n;i++){const x=pos.getX(i),y=pos.getY(i),ox=ss(p.ax-.015,p.ax+.015,Math.abs(x)),aw=(1-ss(p.sh-.06,p.sh+.02,y))*ox*ss(p.hip-.14,p.hip-.06,y),lw=(1-ss(p.hip-.07,p.hip+.03,y))*(1-aw),low=1-ss(p.knee-.04,p.knee+.04,y),el=1-ss(p.elb-.04,p.elb+.04,y),side=low>.001?(x<0?0:1):ss(-.015,.015,x),L=[[0,1-lw-aw]];
+L.push([1,lw*(1-side)*(1-low)],[3,lw*side*(1-low)],[2,lw*(1-side)*low],[4,lw*side*low]);
+if(x<0)L.push([5,aw*(1-el)],[6,aw*el]);else L.push([7,aw*(1-el)],[8,aw*el]);
+L.sort((a,b)=>b[1]-a[1]);let s=0;for(let j=0;j<4;j++)s+=L[j][1];s=s||1;for(let j=0;j<4;j++){si[i*4+j]=L[j][1]>0?L[j][0]:0;sw[i*4+j]=L[j][1]>0?L[j][1]/s:0}}
+geo.setAttribute('skinIndex',new T.Uint16BufferAttribute(si,4));geo.setAttribute('skinWeight',new T.Float32BufferAttribute(sw,4));geo.computeVertexNormals();
+const bn=()=>new T.Bone(),root=bn(),lAu=bn(),lAl=bn(),lBu=bn(),lBl=bn(),aAu=bn(),aAl=bn(),aBu=bn(),aBl=bn();
+lAu.position.set(0,p.hip,0);lBu.position.set(0,p.hip,0);lAl.position.set(0,p.knee-p.hip,0);lBl.position.set(0,p.knee-p.hip,0);aAu.position.set(0,p.sh,0);aBu.position.set(0,p.sh,0);aAl.position.set(0,p.elb-p.sh,0);aBl.position.set(0,p.elb-p.sh,0);
+lAu.add(lAl);lBu.add(lBl);aAu.add(aAl);aBu.add(aBl);root.add(lAu,lBu,aAu,aBu);
+const tex=mesh.material.map;if(tex)tex.encoding=T.LinearEncoding;
+const sm=new T.SkinnedMesh(geo,new T.MeshLambertMaterial({map:tex,skinning:true,side:T.DoubleSide}));sm.add(root);sm.frustumCulled=false;sm.updateMatrixWorld(true);sm.bind(new T.Skeleton([root,lAu,lAl,lBu,lBl,aAu,aAl,aBu,aBl]));
+const inner=new T.Group(),g=new T.Group();inner.rotation.y=Math.PI;inner.scale.setScalar(p.H);inner.position.y=.5*p.H;inner.add(sm);g.add(inner);g.visible=false;sc.add(g);
+NEW[key]={g,inner,p,b:{root,legA:lAu,kneeA:lAl,legB:lBu,kneeB:lBl,armA:aAu,elbA:aAl,armB:aBu,elbB:aBl}}}catch(e){console.log('char',key,e)}})}catch(e){console.log('loader',e)}}
+function poseN(R,ph,mode,isT){const b=R.b,sw=Math.sin(ph),a=R.p.arm;let lA=.5*sw,lB=-.5*sw,kA=Math.max(0,lA)*1.1+.1,kB=Math.max(0,lB)*1.1+.1,aA=-sw*a,aB=sw*a,eA=-a*.8,eB=-a*.8,lean=.08,bob=Math.abs(sw)*.015,sy=1;
+if(mode==='s'){sy=.6;lA=lB=-.5;kA=kB=.9;aA=aB=-.3;eA=eB=-.3;lean=.25;bob=0}else if(mode==='j'){lA=-.5;lB=.3;kA=.8;kB=.2;aA=aB=-.3;eA=eB=-.2;lean=.05;bob=0}
+if(isT){aB=-1.2;eB=-.3;lA*=.8;lB*=.8}
+b.legA.rotation.x=lA;b.legB.rotation.x=lB;b.kneeA.rotation.x=kA;b.kneeB.rotation.x=kB;b.armA.rotation.x=aA;b.armB.rotation.x=aB;b.elbA.rotation.x=eA;b.elbB.rotation.x=eB;b.root.rotation.x=lean;b.root.position.y=bob;
+R.inner.scale.set(R.p.H,R.p.H*sy,R.p.H);R.inner.position.y=.5*R.p.H*sy}
+if(T.GLTFLoader){buildChar('student');buildChar('robe');buildChar('teacher')}
 const brd=new T.Group();Bx(brd,.68,.06,.9,0xf5f0dc,0,.04,0);Bx(brd,.76,.04,.98,0x1f63d8,0,.1,0);Bx(brd,.76,.04,.98,0x0f3b96,0,0,0);Bx(brd,.06,.14,.98,0x0f3b96,-.38,0,0);Pl(brd,.42,.42,new T.MeshBasicMaterial({map:ct}),0,.121,0,-Math.PI/2);brd.visible=false;sc.add(brd);
 const objRoot=new T.Group();sc.add(objRoot);let chW=0,locS=-1;const gr={};
 const TINT=[[0xffffff,0xffffff,0x0b0f24],[0xffd2a0,0xf4e6c8,0x1a0f1c],[0xb8e6c8,0xe0a860,0x08201c]];
@@ -378,7 +403,7 @@ if(o.type==='card'){m.rotation.y=time*3+o.w;m.position.y=(o.pull?Math.min(.5,Mat
 for(let i=objRoot.children.length-1;i>=0;i--)if(objRoot.children[i].userData.seen!==glf)objRoot.remove(objRoot.children[i]);
 const jh=jumpT>=0?Math.sin(Math.PI*jumpT/JD):0;
 const mn=st==='menu',bd=bon.board>0&&!mn;plr.g.position.set(laneX,jh*1.3+(bd?.16:0),0);brd.visible=bd;brd.position.set(laneX,jh*1.3,0);plr.g.rotation.y=mn?Math.PI:0;tch.g.visible=!mn;pose(plr,mn?time*4:time*14,slideT>=0?'s':jumpT>=0?'j':'r');
-chW+=(laneX-chW)*Math.min(1,gdt*5);tch.g.position.set(chW,0,2-cd*.5);pose(tch,time*9,'r',1);
+chW+=(laneX-chW)*Math.min(1,gdt*5);tch.g.position.set(chW,0,2-cd*.5);pose(tch,time*9,'r',1);{const rb=(S.skE==='robe'&&NEW.robe)||NEW.student,sl=slideT>=0?'s':jumpT>=0?'j':'r';['student','robe'].forEach(k=>{if(NEW[k])NEW[k].g.visible=false});if(rb){plr.g.visible=false;rb.g.visible=true;rb.g.position.copy(plr.g.position);rb.g.rotation.y=plr.g.rotation.y;poseN(rb,mn?time*4:time*14,sl,0)}else plr.g.visible=true;if(NEW.teacher){tch.g.visible=false;NEW.teacher.g.visible=!mn;NEW.teacher.g.position.copy(tch.g.position);poseN(NEW.teacher,time*9,'r',1)}}
 GLR.labels=[];const seen={};
 if(mpOn)for(const id in ghosts){if(id===myId)continue;const q=ghosts[id],z=-(q.d-dist);if(z>2.5||z<-50)continue;seen[id]=1;let r=gr[id];if(!r){const c=new T.Color().setHSL((id.split('').reduce((a,b)=>a+b.charCodeAt(0),0)*47%360)/360,.7,.55);r=gr[id]=rig(true,null,c.getHex())}r.g.visible=true;r.g.position.set(q.l,(q.j||0)*1.3,z);pose(r,time*14,q.j?'j':'r');GLR.labels.push({n:names[id]||'?',x:q.l,y:1.9,z})}
 for(const id in gr)if(!seen[id])gr[id].g.visible=false;
